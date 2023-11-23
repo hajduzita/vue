@@ -1,12 +1,14 @@
-import { createApp } from 'vue'
-import './assets/main.css'
-import App from './App.vue'
-import router from './router'
-//import axios from 'axios'
-//import VueAxios from 'vue-axios'
+import "./assets/main.css";
 
-const app = createApp(App)
+import { createApp } from "vue";
+import router from "./router";
+import { createPinia } from "pinia";
 
-app.use(router)
-//app.use(VueAxios, axios)
-app.mount('#app')
+import App from "./App.vue";
+
+const app = createApp(App);
+
+app.use(router);
+app.use(createPinia());
+
+app.mount("#app");

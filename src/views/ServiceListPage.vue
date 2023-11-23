@@ -1,53 +1,29 @@
 <template>
   <div class="flex justify-center my-16">
-    <table class="shadow-2xl" data-id="result">
-      <thead>
-      <tr class="bg-green-600 divide-x divide-cold-gray text-white uppercase">
-        <th scope="col" class="px-6 py-3">Microservice</th>
-        <th scope="col" class="px-6 py-3">Status</th>
-      </tr>
-      </thead>
-      <tbody class="divide-y divide-cold-gray">
-      <tr
-          v-for="service in serviceStatus.services" :key="service.updatedAt"
-          class="bg-white divide-x divide-cold-gray">
-        <td class="italic px-6 py-3 text-left">{{ service.updatedAt }}</td>
-        <td class="px-6 py-3 text-center">
-          {{ getServiceStatusIcon(service.healthStatus) }}
-        </td>
-      </tr>
-      </tbody>
-    </table>
+    <LoadingComponent v-if="serviceStore.state === 'loading'" />
+    <ServiceListTableComponent
+      v-else-if="serviceStore.state === 'result'"
+      :services="services"
+    />
+    <ErrorComponent v-else-if="serviceStore.state === 'error'" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useServiceStatusStore } from "../stores/ServiceStore";
+import { computed, onMounted } from "vue";
 
-import { API_URL } from '../constants/api';
-import axios from 'axios';
-import { SERVICE_STATUS } from '../services/mock-service-status';
+import LoadingComponent from "../components/LoadingComponent.vue";
+import ErrorComponent from "../components/ErrorComponent.vue";
+import ServiceListTableComponent from "../components/ServiceListTableComponent.vue";
 
-const serviceStatus = SERVICE_STATUS;
-const mappedServiceStatus = () => {
-  const data = []
-  for (const serviceKey in serviceStatus.services) {
-    console.log(serviceKey)
-  }
-}
+const serviceStore = useServiceStatusStore();
 
-const getServiceStatusIcon = (status: string): string => {
-  return status ==='UP' ? '✅' : '❌';
-}
+const services = computed(() => {
+  return serviceStore.features;
+});
 
-const fetchStatus = () => {
-  axios.get(API_URL).then((response) => {
-    console.log(response.data)
-  }).catch((error) => {
-    console.log('ERROR', error)
-  })
-}
-
-fetchStatus()
-
-
+onMounted(() => {
+  serviceStore.fetchServiceStatusList();
+});
 </script>
